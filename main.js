@@ -53,7 +53,7 @@ function processTestCase(filename) {
     const n = data.keys.n;
     const k = data.keys.k;
     
-    console.log(Processing test case with n=${n}, k=${k});
+    console.log(`Processing test case with n=${n}, k=${k}`);
     
     // Extract and decode points
     const xValues = [];
@@ -66,7 +66,7 @@ function processTestCase(filename) {
             const encodedY = data[i].value;
             const y = convertToDecimal(encodedY, base);
             
-            console.log(Point ${i}: x=${x}, y=${y} (decoded from base ${base}));
+            console.log(`Point ${i}: x=${x}, y=${y} (decoded from base ${base})`);
             
             xValues.push(x);
             yValues.push(y);
@@ -83,9 +83,17 @@ function processTestCase(filename) {
     // Verify with all points as a sanity check
     const allSecretC = lagrangeInterpolation(xValues, yValues, BigInt(0));
     
-    console.log("Secret C (using only " + k + " points): " + secretC.toString());
-    console.log("Secret C (using all " + n + " points): " + allSecretC.toString());
+    console.log(`Secret C (using only ${k} points): ${secretC.toString()}`);
+    console.log(`Secret C (using all ${n} points): ${allSecretC.toString()}`);
     
+    // Deviation check for each point
+    console.log("\nDeviation check for each root:");
+    for (let i = 0; i < n; i++) {
+        const predicted = lagrangeInterpolation(kXValues, kYValues, xValues[i]);
+        const deviation = (yValues[i] - predicted);
+        console.log(`x=${xValues[i]}, actual y=${yValues[i]}, predicted y=${predicted}, deviation=${deviation}`);
+    }
+
     return secretC.toString();
 }
 
@@ -93,7 +101,7 @@ function processTestCase(filename) {
 const filename = process.argv[2] || 'testcase.json';
 try {
     const secretC = processTestCase(filename);
-    console.log(\nFinal result - The secret value C is: ${secretC});
+    console.log(`\nFinal result - The secret value C is: ${secretC}`);
 } catch (error) {
-    console.error(Error: ${error.message});
+    console.error(`Error: ${error.message}`);
 }
